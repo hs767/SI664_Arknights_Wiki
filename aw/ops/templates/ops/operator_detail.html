@@ -1,0 +1,48 @@
+{% extends "base_menu.html" %}
+{% load humanize %} <!-- https://docs.djangoproject.com/en/3.0/ref/contrib/humanize -->
+{% block content %}
+<span style="float: right;">
+({{ operator.updated_at|naturaltime }})
+{% if operator.owner == user %}
+<a href="{% url 'ops:operator_update' operator.id %}"><i class="fa fa-pencil"></i></a>
+<a href="{% url 'ops:operator_delete' operator.id %}"><i class="fa fa-trash"></i></a>
+{% endif %}
+</span>
+<h1>{{ operator.name }}</h1>
+<p>Class: {{ operator.clas }}</p>
+<p>Rarity:
+    {% for i in 'x'|ljust:operator.rarity %}
+        <i class="fa fa-star" style="color: orange;"></i>
+    {% endfor %}
+</p>
+<p>Base Type 1: {{ operator.base_type_1 }}</p><p>Base Type 2: {{ operator.base_type_2 }}</p>
+<p>Race: {{ operator.race }}</p><p>Gender: {{ operator.gender }}</p>
+
+<p>
+({{ operator.updated_at|naturaltime }})
+</p>
+{% if user.is_authenticated %}
+<br clear="all"/>
+<p>
+{% load crispy_forms_tags %}
+<form method="post" action="{% url 'ops:operator_comment_create' operator.id %}">
+    {% csrf_token %}
+    {{ comment_form|crispy }}
+<input type="submit" value="Submit">
+<input type="submit" value="All Operators" onclick="window.location.href='{% url 'ops:all' %}';return false;">
+</form>
+</p>
+{% endif %}
+{% for comment in comments %}
+<p> {{ comment.text }}, Rating: {{ comment.num }}
+({{ comment.updated_at|naturaltime }})
+{% if user == comment.owner %}
+<a href="{% url 'ops:operator_comment_delete' comment.id %}"><i class="fa fa-trash"></i></a>
+{% endif %}
+</p>
+<p>
+<a href="{% url 'ops:all' %}">All operators</a>
+</p>
+{% endfor %}
+{% endblock %}
+
